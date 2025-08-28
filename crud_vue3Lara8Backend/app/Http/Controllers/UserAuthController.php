@@ -59,46 +59,59 @@ class UserAuthController extends Controller
         }
     }
 
-    public function updateUserTable(Request $request)
-{
-    try {
-        // UserAuth record
-        $user = UserAuth::find($request->user_authorize_id);
+    public function updateUserTable(Request $request){
+        try {
+            // UserAuth record
+            $user = UserAuth::find($request->user_authorize_id);
 
-        if ($user) {
-            $user->full_name  = $request->full_name;
-            $user->email      = $request->email;
-            $user->role_id    = $request->role_id;
-            $user->updated_at = now();
-            $user->save();
+            if ($user) {
+                $user->full_name  = $request->full_name;
+                $user->email      = $request->email;
+                $user->role_id    = $request->role_id;
+                $user->updated_at = now();
+                $user->save();
+            }
+
+            // Role record
+            $role = Role::find($request->roles_Con_id);
+
+            if ($role) {
+                $role->description = $request->description;
+                $role->updated_at  = now();
+                $role->save();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User and Role updated successfully',
+                'data' => [
+                    'user' => $user,
+                    'role' => $role
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating records',
+                'error'   => $e->getMessage()
+            ], 500);
         }
-
-        // Role record
-        $role = Role::find($request->roles_Con_id);
-
-        if ($role) {
-            $role->description = $request->description;
-            $role->updated_at  = now();
-            $role->save();
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'User and Role updated successfully',
-            'data' => [
-                'user' => $user,
-                'role' => $role
-            ]
-        ], 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error updating records',
-            'error'   => $e->getMessage()
-        ], 500);
     }
-}
+
+    public function softDeleteTableRecord( Request $request ){
+        // return $request;
+
+        $softDel = UserAuth::where('full_name' , $request->full_name)->first();
+
+        if($softDel) {
+            $softDel->deleted_at = now();
+            $softDel->save();
+            echo 'Deleted Nama';
+        } else {
+            echo 'Deleted Indi';
+        }
+    }
 
 
 

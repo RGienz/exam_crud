@@ -40,6 +40,7 @@ class RoleController extends Controller
                 FROM user_auths AS ua
                 LEFT JOIN roles AS r
                 ON ua.role_id = r.id
+                WHERE ua.deleted_at IS NULL 
                 "
             )
         );

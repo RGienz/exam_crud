@@ -34,3 +34,5 @@ Route::get('/loadRole' , [RoleController::class ,'loadRole']);
 Route::get('/tableRole' , [RoleController::class , 'tableRole']);
 // update - edit 
 Route::post('/updateUserTable' , [UserAuthController::class ,'updateUserTable']);
+// softDelete Homepage - 
+Route::post('/softDeleteTableRecord' , [UserAuthController::class ,'softDeleteTableRecord']);

@@ -102,7 +102,7 @@
                 </button>
                 <button
                   class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 shadow-sm"
-                  @click="deleteUser(item.id)"
+                  @click="deleteUser(item)"
                 >
                   Delete
                 </button>
@@ -138,6 +138,7 @@ import { defineComponent, ref, computed } from "vue";
 import { useUserStore } from "../../stores/userStore";
 import { fetchTableData } from "../../condition/homepageTableCondition/tableCon";
 import EditUserDialog from "../../page/dialogs/homeDialog.vue";
+import { softDel } from "../..//condition/HomepageCondition/softDeleteCon";
 
 interface User {
   id: number;
@@ -195,9 +196,32 @@ export default defineComponent({
       );
     });
 
-    const deleteUser = (id: number): void => {
-      console.log("Delete user id:", id);
-    };
+  const deleteUser = async (user: User) => {
+    const confirmed = window.confirm(`Are you sure you want to delete ${user.full_name}?`);
+      if (!confirmed) return;
+
+      try {
+        const payload = {
+          user_authorize_id: (user as any).user_authorize_id,
+          roles_Con_id: (user as any).roles_Con_id,
+          full_name: user.full_name,
+          email: user.email,
+          role_id: user.role_id,
+        };
+
+        console.log("Payload to API:", payload);
+
+        const res = await softDel(payload);
+        console.log("User soft deleted:", res.data);
+
+        await tableData();
+        alert("User deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        alert("Failed to delete user. Please try again.");
+      }
+  };
+
 
     tableData();
 

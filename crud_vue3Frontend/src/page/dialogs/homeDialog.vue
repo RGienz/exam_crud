@@ -4,6 +4,7 @@
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
     <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 relative">
+      <!-- Close button -->
       <button
         class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
         @click="closeDialog"
@@ -15,6 +16,7 @@
 
       <form @submit.prevent="saveChanges">
         <div class="space-y-4">
+          <!-- Always show Full Name + Email -->
           <div>
             <label class="block text-sm font-medium text-gray-600">Full Name</label>
             <input
@@ -35,25 +37,28 @@
             />
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-600">Role</label>
-            <select
-              v-model="localUser.role_id"
-              class="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="1">User</option>
-              <option value="2">Admin</option>
-            </select>
-          </div>
+          <!-- Show Role + Description ONLY if current logged user is not role_id 1 -->
+          <template v-if="currentUser && currentUser.role_id !== 1">
+            <div>
+              <label class="block text-sm font-medium text-gray-600">Role</label>
+              <select
+                v-model="localUser.role_id"
+                class="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="1">User</option>
+                <option value="2">Admin</option>
+              </select>
+            </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-600">Description</label>
-            <textarea
-              v-model="localUser.description"
-              class="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-              rows="3"
-            ></textarea>
-          </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-600">Description</label>
+              <textarea
+                v-model="localUser.description"
+                class="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
+                rows="3"
+              ></textarea>
+            </div>
+          </template>
         </div>
 
         <div class="mt-6 flex justify-end space-x-2">
@@ -77,8 +82,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch } from "vue";
-import { updateTableValue } from '../../condition/HomepageCondition/homepageCon'
+import { defineComponent, PropType, ref, watch, computed } from "vue";
+import { updateTableValue } from "../../condition/HomepageCondition/homepageCon";
+import { useUserStore } from "../../stores/userStore";
 
 interface User {
   id: number;
@@ -96,6 +102,9 @@ export default defineComponent({
   },
   emits: ["close", "save"],
   setup(props, { emit }) {
+    const userStore = useUserStore();
+
+    // Reactive local copy of user being edited
     const localUser = ref<User>({
       id: 0,
       full_name: "",
@@ -104,6 +113,7 @@ export default defineComponent({
       description: "",
     });
 
+    // Watch for prop changes
     watch(
       () => props.user,
       (newUser) => {
@@ -114,23 +124,29 @@ export default defineComponent({
       { immediate: true }
     );
 
+    const currentUser = computed(() => userStore.user); // logged-in user from Pinia
+
     const closeDialog = () => {
       emit("close");
     };
 
     const saveChanges = async () => {
-  try {
-    await updateTableValue(localUser.value); 
-    emit("save", localUser.value);           
-    closeDialog();
-    location.reload()
-  } catch (error) {
-    console.error("Error saving changes:", error);
-  }
-};
+      try {
+        await updateTableValue(localUser.value);
+        emit("save", localUser.value);
+        closeDialog();
+        location.reload();
+      } catch (error) {
+        console.error("Error saving changes:", error);
+      }
+    };
 
-
-    return { localUser, closeDialog, saveChanges };
+    return {
+      localUser,
+      closeDialog,
+      saveChanges,
+      currentUser,
+    };
   },
 });
 </script>
