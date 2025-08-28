@@ -34,3 +34,19 @@ a,
   }
 } */
 @import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.input-field {
+  @apply w-full px-3 pt-5 pb-2 bg-transparent border-b-2 border-gray-500 focus:border-purple-400 text-white outline-none transition;
+}
+
+.floating-label {
+  @apply absolute left-3 top-2 text-gray-400 text-sm transition-all;
+}
+
+.btn-glow {
+  @apply w-full py-2 rounded-xl bg-purple-600 text-white font-semibold shadow-lg hover:shadow-purple-500/50 hover:bg-purple-700 transition;
+}
