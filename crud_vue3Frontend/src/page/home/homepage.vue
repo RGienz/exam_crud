@@ -1,6 +1,5 @@
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
-    <!-- Header -->
     <h1 class="text-2xl font-bold text-gray-800 mb-6">Welcome to the Homepage</h1>
 
     <!-- Logged-in User Info -->
@@ -114,7 +113,6 @@
       </div>
     </div>
 
-    <!-- Logout -->
     <div class="mt-6">
       <button
         class="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 shadow-md"
@@ -123,6 +121,14 @@
         Logout
       </button>
     </div>
+
+    <EditUserDialog
+      :isOpen="isDialogOpen"
+      :user="selectedUser"
+      @close="isDialogOpen = false"
+      @save="handleSave"
+       @update-table="tableDataList = $event"
+    />
   </div>
 </template>
 
@@ -131,8 +137,8 @@
 import { defineComponent, ref, computed } from "vue";
 import { useUserStore } from "../../stores/userStore";
 import { fetchTableData } from "../../condition/homepageTableCondition/tableCon";
+import EditUserDialog from "../../page/dialogs/homeDialog.vue";
 
-// Type for a user object in DB
 interface User {
   id: number;
   full_name: string;
@@ -140,20 +146,32 @@ interface User {
   role_id: number;
 }
 
-// Type for user with role info from join query
 interface UserWithRole extends User {
   role_name: string;
   description: string;
 }
 
 export default defineComponent({
+  components: { EditUserDialog },
   setup() {
     const userStore = useUserStore();
     const tableDataList = ref<UserWithRole[]>([]);
+     const isDialogOpen = ref(false);
+    const selectedUser = ref<User | null>(null);
 
     const logout = (): void => {
       userStore.logout();
       location.reload();
+    };
+
+    const editUser = (user: User) => {
+      selectedUser.value = user;
+      isDialogOpen.value = true;
+    };
+
+    const handleSave = (updatedUser: User) => {
+      console.log("Updated User:", updatedUser);
+      isDialogOpen.value = false;
     };
 
     const tableData = async (): Promise<void> => {
@@ -166,7 +184,6 @@ export default defineComponent({
       }
     };
 
-    // Computed to fetch logged-in user's record from tableDataList
     const currentUserData = computed<UserWithRole | User | null>(() => {
       if (!userStore.getUser) return null;
       return (
@@ -177,10 +194,6 @@ export default defineComponent({
         ) || userStore.getUser
       );
     });
-
-    const editUser = (user: UserWithRole | User): void => {
-      console.log("Edit user:", user);
-    };
 
     const deleteUser = (id: number): void => {
       console.log("Delete user id:", id);
@@ -196,6 +209,9 @@ export default defineComponent({
       tableData,
       editUser,
       deleteUser,
+      isDialogOpen,
+      selectedUser,
+      handleSave,
     };
   },
 });

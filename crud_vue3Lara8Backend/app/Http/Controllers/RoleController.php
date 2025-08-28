@@ -24,17 +24,17 @@ class RoleController extends Controller
     }
 
     public function tableRole( Request $request ) {
-        // return $request;
 
         $table = DB::connection('mysql')
         ->select(
             DB::raw(
                 "SELECT
-                    ua.id,
+                    ua.id AS user_authorize_id,
                     ua.full_name,
                     ua.email,
                     ua.password,
                     ua.role_id,
+                    r.id AS roles_Con_id,
                     r.role_name,
                     r.`description`
                 FROM user_auths AS ua

@@ -32,3 +32,5 @@ Route::post('/registerPersonnel' , [UserAuthController::class ,'registerPersonne
 Route::get('/loadRole' , [RoleController::class ,'loadRole']);
 // Role Table - User / Admin
 Route::get('/tableRole' , [RoleController::class , 'tableRole']);
+// update - edit 
+Route::post('/updateUserTable' , [UserAuthController::class ,'updateUserTable']);
