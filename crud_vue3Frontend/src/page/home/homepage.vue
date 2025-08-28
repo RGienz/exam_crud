@@ -1,78 +1,164 @@
 <template>
-  <div>
-    <h1>Welcome to the Homepage</h1>
+  <div class="p-6 bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Welcome to the Homepage</h1>
 
-    <div v-if="user" class="mb-6">
-      <p><strong>Full Name:</strong> {{ user.full_name }}</p>
-      <p><strong>Email:</strong> {{ user.email }}</p>
-      <p><strong>Assigned Role ID:</strong> {{ user.role_id }}</p>
+    <!-- Logged-in User Info -->
+    <div v-if="user" class="bg-white rounded-2xl shadow-md p-4 mb-6 border border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-700 mb-3">Your Profile</h2>
+      <div class="space-y-2">
+        <p><span class="font-medium text-gray-600">Full Name:</span> {{ user.full_name }}</p>
+        <p><span class="font-medium text-gray-600">Email:</span> {{ user.email }}</p>
+        <p>
+          <span class="font-medium text-gray-600">Assigned Role:</span>
+          <span
+            class="px-2 py-1 ml-2 rounded-full text-sm"
+            :class="user.role_id === 1 ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'"
+          >
+            {{ user.role_id === 1 ? 'User' : 'Admin' }}
+          </span>
+        </p>
+      </div>
     </div>
 
-    <div>
-      <h2 class="text-lg font-semibold mb-2">User Table</h2>
-      <table class="table-auto border-collapse border border-gray-400 w-full text-left">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="border border-gray-400 px-4 py-2">Full Name</th>
-            <th class="border border-gray-400 px-4 py-2">Email</th>
-            <th class="border border-gray-400 px-4 py-2">Role</th>
-            <th class="border border-gray-400 px-4 py-2">Description</th>
-            <th class="border border-gray-400 px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in tableDataList" :key="item.id">
-            <td class="border border-gray-400 px-4 py-2">{{ item.full_name }}</td>
-            <td class="border border-gray-400 px-4 py-2">{{ item.email }}</td>
-            <td class="border border-gray-400 px-4 py-2">{{ item.role_name }}</td>
-            <td class="border border-gray-400 px-4 py-2">{{ item.description }}</td>
-            <td class="border border-gray-400 px-4 py-2 space-x-2">
-              <button 
-                class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                @click="editUser(item)"
-              >
-                Edit
-              </button>
-              <button 
-                class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                @click="deleteUser(item.id)"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- User Table (Role 1) -->
+    <div v-if="user && user.role_id === 1">
+      <h2 class="text-lg font-semibold mb-3 text-gray-700">Your Account Details</h2>
+      <div class="overflow-x-auto bg-white rounded-2xl shadow-md border border-gray-200">
+        <table class="table-auto w-full text-left">
+          <thead class="bg-gray-100 text-gray-700">
+            <tr>
+              <th class="px-4 py-2">Full Name</th>
+              <th class="px-4 py-2">Email</th>
+              <th class="px-4 py-2">Role</th>
+              <th class="px-4 py-2">Description</th>
+              <th class="px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="currentUserData" class="hover:bg-gray-50 transition">
+              <td class="border-t px-4 py-2">{{ currentUserData.full_name }}</td>
+              <td class="border-t px-4 py-2">{{ currentUserData.email }}</td>
+              <td class="border-t px-4 py-2">
+                <span class="px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-700">
+                  {{ currentUserData.role_name }}
+                </span>
+              </td>
+              <td class="border-t px-4 py-2">{{ currentUserData.description }}</td>
+              <td class="border-t px-4 py-2 space-x-2">
+                <button
+                  class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 shadow-sm"
+                  @click="editUser(currentUserData)"
+                >
+                  Edit
+                </button>
+                <button
+                  class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 shadow-sm"
+                  @click="deleteUser(currentUserData.id)"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <button 
-          class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-          @click="logout"
-        >
-          Logout
-        </button>
-        
+    <!-- Admin Table (Role 2) -->
+    <div v-else-if="user && user.role_id === 2">
+      <h2 class="text-lg font-semibold mb-3 text-gray-700">All Users</h2>
+      <div class="overflow-x-auto bg-white rounded-2xl shadow-md border border-gray-200">
+        <table class="table-auto w-full text-left">
+          <thead class="bg-gray-100 text-gray-700">
+            <tr>
+              <th class="px-4 py-2">Full Name</th>
+              <th class="px-4 py-2">Email</th>
+              <th class="px-4 py-2">Role</th>
+              <th class="px-4 py-2">Description</th>
+              <th class="px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="item in tableDataList"
+              :key="item.id"
+              class="hover:bg-gray-50 transition"
+            >
+              <td class="border-t px-4 py-2">{{ item.full_name }}</td>
+              <td class="border-t px-4 py-2">{{ item.email }}</td>
+              <td class="border-t px-4 py-2">
+                <span class="px-2 py-1 rounded-full text-sm"
+                  :class="item.role_name === 'Admin' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'">
+                  {{ item.role_name }}
+                </span>
+              </td>
+              <td class="border-t px-4 py-2">{{ item.description }}</td>
+              <td class="border-t px-4 py-2 space-x-2">
+                <button
+                  class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 shadow-sm"
+                  @click="editUser(item)"
+                >
+                  Edit
+                </button>
+                <button
+                  class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 shadow-sm"
+                  @click="deleteUser(item.id)"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <div class="mt-6">
+      <button
+        class="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 shadow-md"
+        @click="logout"
+      >
+        Logout
+      </button>
+    </div>
   </div>
 </template>
 
+
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, computed } from "vue";
 import { useUserStore } from "../../stores/userStore";
 import { fetchTableData } from "../../condition/homepageTableCondition/tableCon";
+
+// Type for a user object in DB
+interface User {
+  id: number;
+  full_name: string;
+  email: string;
+  role_id: number;
+}
+
+// Type for user with role info from join query
+interface UserWithRole extends User {
+  role_name: string;
+  description: string;
+}
 
 export default defineComponent({
   setup() {
     const userStore = useUserStore();
-    const tableDataList = ref<any[]>([]);
+    const tableDataList = ref<UserWithRole[]>([]);
 
-    const logout = () => {
+    const logout = (): void => {
       userStore.logout();
       location.reload();
     };
 
-    const tableData = async () => {
+    const tableData = async (): Promise<void> => {
       try {
-        const display = await fetchTableData();
+        const display: UserWithRole[] = await fetchTableData();
         tableDataList.value = display;
         console.log("Table Data:", tableDataList.value);
       } catch (error) {
@@ -80,23 +166,36 @@ export default defineComponent({
       }
     };
 
-    const editUser = (user: any) => {
+    // Computed to fetch logged-in user's record from tableDataList
+    const currentUserData = computed<UserWithRole | User | null>(() => {
+      if (!userStore.getUser) return null;
+      return (
+        tableDataList.value.find(
+          (item) =>
+            item.full_name === userStore.getUser.full_name &&
+            item.email === userStore.getUser.email
+        ) || userStore.getUser
+      );
+    });
+
+    const editUser = (user: UserWithRole | User): void => {
       console.log("Edit user:", user);
     };
 
-    const deleteUser = (id: number) => {
+    const deleteUser = (id: number): void => {
       console.log("Delete user id:", id);
     };
 
     tableData();
 
     return {
-      user: userStore.getUser,
+      user: userStore.getUser as User,
       logout,
       tableDataList,
+      currentUserData,
       tableData,
       editUser,
-      deleteUser
+      deleteUser,
     };
   },
 });
