@@ -4,7 +4,6 @@
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
     <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 relative">
-      <!-- Close button -->
       <button
         class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
         @click="closeDialog"
@@ -16,7 +15,6 @@
 
       <form @submit.prevent="saveChanges">
         <div class="space-y-4">
-          <!-- Always show Full Name + Email -->
           <div>
             <label class="block text-sm font-medium text-gray-600">Full Name</label>
             <input
@@ -37,7 +35,6 @@
             />
           </div>
 
-          <!-- Show Role + Description ONLY if current logged user is not role_id 1 -->
           <template v-if="currentUser && currentUser.role_id !== 1">
             <div>
               <label class="block text-sm font-medium text-gray-600">Role</label>
@@ -104,7 +101,6 @@ export default defineComponent({
   setup(props, { emit }) {
     const userStore = useUserStore();
 
-    // Reactive local copy of user being edited
     const localUser = ref<User>({
       id: 0,
       full_name: "",
@@ -113,7 +109,6 @@ export default defineComponent({
       description: "",
     });
 
-    // Watch for prop changes
     watch(
       () => props.user,
       (newUser) => {
@@ -124,7 +119,7 @@ export default defineComponent({
       { immediate: true }
     );
 
-    const currentUser = computed(() => userStore.user); // logged-in user from Pinia
+    const currentUser = computed(() => userStore.user);
 
     const closeDialog = () => {
       emit("close");
