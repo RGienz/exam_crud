@@ -159,6 +159,8 @@ export default defineComponent({
             }
 
             await registrationAPI(registerData.value);
+            showRegistrationDialog.value = false;
+            
         };
 
         return {
